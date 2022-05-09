@@ -18,7 +18,7 @@ g++ src/*.cpp -o sha256
 ## Usage
 
 ```
-./sha256 "String 1" "String 2" ...
+sha256 "String 1" "String 2" ...
 ```
 
 Returns list of hashes like
