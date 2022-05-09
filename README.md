@@ -1,6 +1,8 @@
 # sha256
 
-Default sha256 algorithm implemented in C++ just to understand length extension attacks better.
+Default sha256 algorithm implemented in C++ just to understand length extension 
+attacks better. Not fit for production, obviously. Why would you even ask? I 
+have an idea: You explain smart pointers to me and I will make valgrind shut up.
 
 ## Installation
 
