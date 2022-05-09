@@ -4,7 +4,7 @@ Default sha256 algorithm implemented in C++ just to understand length extension 
 
 ## Installation
 
-There already is a [binary file](https://github.com/ny64/sha256/raw/master/sha256) you can download directly.
+There already is a [binary file](https://github.com/ny64/sha256/raw/main/sha256) you can download directly.
 To compile it yourself you need a C++ compiler. Your installed version will most likely work.
 
 ```
