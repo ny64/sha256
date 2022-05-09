@@ -1,4 +1,6 @@
 #include <cstdint>
+#include <iostream> // TODO: REMOVE
+#include <cstdio> // TODO: REMOVE
 
 #include "sha256_utils.h"
 
@@ -56,3 +58,65 @@ uint32_t* compress(uint32_t input_state[8], uint8_t block[64]) {
 
     return state;
 }
+
+uint8_t padding_length(uint64_t message_length) {
+    return 64 - ((message_length + 8) % 64) + 8;
+}
+
+/* Retrieve padding for given message length */
+uint8_t* padding(uint64_t message_length) {
+    uint8_t filler_byte_length = 64 - ((message_length + 8) % 64) - 1;
+    uint8_t padding_length = 1 + filler_byte_length + 8;
+    uint8_t *padding = new uint8_t[padding_length];
+
+    padding[0] = 0x80;
+    for (int i = 1; i < filler_byte_length + 1; ++i) {
+        padding[i] = 0x00;
+    }
+    message_length *= 8;
+    for (int i = filler_byte_length + 1; i < padding_length; ++i) {
+        padding[i] = uint8_t(message_length >> (64 - 8));
+        message_length = message_length << 8;
+    }
+
+    return padding;
+}
+
+uint8_t* sha(char *message) {
+    // Retrieve message length
+    uint32_t m_len = 0;
+    while (message[m_len] != '\0') ++m_len;
+    uint32_t p_len = padding_length(m_len);
+    
+    // Append padding to message
+    uint8_t *pad = padding(m_len);
+    uint8_t *padmsg = new uint8_t[m_len + p_len];
+    for (int i = 0; i < m_len + p_len; ++i)
+        padmsg[i] = (i < m_len) ? message[i] : pad[i - m_len];
+    
+    // Deep copy IV into state
+    uint32_t *state = new uint32_t[8];
+    for (int i = 0; i < 8; ++i) state[i] = IV[i];
+    
+    // Split padded message into 64B blocks
+    uint32_t block_num = (m_len + p_len)/64;
+    uint8_t blocks[block_num][64];
+    uint32_t k = 0;
+    for (int i = 0; i < block_num; ++i)
+        for (int j = 0; j < 64; ++j)
+            blocks[i][j] = padmsg[k++];
+    
+    // Generate hash value
+    for (int i = 0; i < block_num; ++i)
+        state = compress(state, blocks[i]);
+    uint8_t *hash = new uint8_t[32];
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            hash[4*i + j] = uint8_t(state[i] >> (32 - 8));
+            state[i] = state[i] << 8;
+        }
+    }
+
+    return hash;
+}
+
